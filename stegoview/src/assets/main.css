@@ -1,5 +1,13 @@
 @import './base.css';
+@import './fonts/inter/inter.css';
+@import './fonts/tabler-icons.min.css';
+@import './fonts/feather.css';
+@import './fonts/fontawesome.css';
+@import './fonts/material.css';
+@import './css/style.css';
+@import './css/style-preset.css';
 
+/* 
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -32,4 +40,5 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
-}
+};
+*/
