@@ -5,11 +5,11 @@ import fs from 'fs-extra'
 import * as path from 'path'
 import sharp, { type OutputInfo, type Metadata } from 'sharp'
 import PRNG from '../PRNG'
-import { type StegoData } from './rpe'
+import { type StegoDecodeData, type StegoData } from './rpe'
 
 // Global configs.
 const N_LSB = 2
-const MESSAGE_BRACKET = ':\\\\:message://:'
+const MESSAGE_BRACKET = ':\\\\:message://::'
 
 /**
  * Get hex color pixels from image.
@@ -23,6 +23,19 @@ const getHexColorPixelsImage = async (imageData: Buffer, imageInfo: OutputInfo):
         }
     }
     return hexColorPixels
+}
+
+/**
+ * Convert biner to string.
+ */
+const getStringFromBinnary = (stringBinner: string): string => {
+    let message: string = ''
+    for (let i = 0; i < stringBinner.length; i += 8) {
+        const bin8bit = stringBinner.slice(i, i + 8)
+        const charMessage = String.fromCharCode(parseInt(bin8bit, 2))
+        message += charMessage
+    }
+    return message
 }
 
 export default {
@@ -120,9 +133,62 @@ export default {
         fs.mkdirSync(tempDir)
         await sharp(data, { raw: info }).toFile(stegoData.coverPath)
         const dataBuffer = Buffer.from(hexColorPixels.map(hex => parseInt(hex, 16)))
-        await sharp(dataBuffer, { raw: info }).toFile(stegoData.stegoPath)
+        await sharp(dataBuffer, { raw: info }).png().toFile(stegoData.stegoPath)
 
         // Done.
         return stegoData
+    },
+
+    /**
+     * Decoding to stego image.
+     */
+    async decoding (stegoImagePath: string, seed: number): Promise<StegoDecodeData> {
+        // Check image path.
+        if (!fs.existsSync(stegoImagePath)) {
+            throw new Error('File image not exits.')
+        }
+
+        // Get data color pixel from image.
+        const { data, info } = await sharp(stegoImagePath).raw().toBuffer({ resolveWithObject: true })
+        const hexColorPixels = await getHexColorPixelsImage(data, info)
+
+        // Find embeded message from stego image.
+        let message: string = ''
+        let messageBinarry: string = ''
+        const rand = new PRNG(seed)
+        const mapPixels: boolean[] = Array.from({ length: hexColorPixels.length }, () => false)
+        while (!message.includes('://:')) {
+            // Get image pixel index.
+            const randomNumber: number = Number(rand.random().toString().replace('.', ''))
+            const targetIndex: number = randomNumber % mapPixels.length
+            if (mapPixels[targetIndex]) continue
+
+            // Extract the binary message.
+            const pixelColoHex: string = hexColorPixels[targetIndex]
+            let pixelColorBinarry: string = parseInt(pixelColoHex, 16).toString(2)
+            while (pixelColorBinarry.length < 8) {
+                pixelColorBinarry = '0' + pixelColorBinarry
+            }
+            messageBinarry += pixelColorBinarry.slice(8 - N_LSB, 8)
+
+            // Convert message to string.
+            if (messageBinarry.length % 8 === 0) {
+                message = getStringFromBinnary(messageBinarry)
+
+                // Check start message bracket.
+                if (message.length === 4 && message !== ':\\\\:') {
+                    throw new Error('No data inside.')
+                }
+            }
+
+            // Next loop.
+            mapPixels[targetIndex] = true
+        }
+
+        // Done.
+        const result: StegoDecodeData = {
+            message: message.replace(':\\\\:', '').replace('://:', '')
+        }
+        return result
     }
 }

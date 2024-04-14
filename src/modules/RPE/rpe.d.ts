@@ -5,3 +5,7 @@ export interface StegoData {
     coverPath: string
     stegoPath: string
 }
+
+export interface StegoDecodeData {
+    message: string
+}
