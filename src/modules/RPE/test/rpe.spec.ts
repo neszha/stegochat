@@ -3,7 +3,7 @@ import * as path from 'path'
 import { SHA256 } from 'crypto-js'
 import * as randomString from 'randomstring'
 import rpeImage from '../rpe-image'
-import { type StegoDecodeData } from '../rpe'
+import { type StegoDecodeData } from '../rpe-type'
 
 describe('Test Get Capacity of Images', () => {
     it('Success get message capacity from image 01', async () => {

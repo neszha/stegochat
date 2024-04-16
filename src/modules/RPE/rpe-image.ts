@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 import * as path from 'path'
 import sharp, { type OutputInfo, type Metadata } from 'sharp'
 import PRNG from '../PRNG'
-import { type StegoDecodeData, type StegoData } from './rpe'
+import { type StegoDecodeData, type StegoData } from './rpe-type'
 
 // Global configs.
 const N_LSB = 2
