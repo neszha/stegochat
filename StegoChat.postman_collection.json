@@ -19,7 +19,7 @@
 							"formdata": [
 								{
 									"key": "name",
-									"value": "Channel Name",
+									"value": "Channel #1",
 									"description": "Channel Name",
 									"type": "text"
 								},
@@ -27,12 +27,12 @@
 									"key": "coverImage",
 									"description": "Cover Image",
 									"type": "file",
-									"src": "/Users/neszha/Pictures/img-02.png"
+									"src": "/Users/neszha/Downloads/img-03.png"
 								},
 								{
 									"key": "expired",
-									"value": "5",
-									"description": "Time to Leave in Minute",
+									"value": "6000",
+									"description": "Time to Leave in Seconds",
 									"type": "text"
 								}
 							]
@@ -45,6 +45,36 @@
 							"path": [
 								"api",
 								"channel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stego Channel Info",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "stegoImage",
+									"description": "Cover Image",
+									"type": "file",
+									"src": "/Users/neszha/Downloads/0c83d76c1bc71a2ddf0e9fb06b02b608e58b507d.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/channel/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"channel",
+								"info"
 							]
 						}
 					},

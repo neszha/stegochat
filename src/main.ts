@@ -5,7 +5,7 @@ import { createServer } from 'http'
 import { APP_PORT } from './constants/environment'
 import apiRouter from './api/router'
 import redis from './api/databases/redis.db'
-import { STEGO_IMAGE_DIR_PATH } from './api/multer.storage'
+import { PUBLIC_IMAGE_DIR_PATH } from './api/multer.storage'
 
 /**
  * Create express app.
@@ -25,7 +25,7 @@ app.use(morgan('tiny'))
  * Setup routes express.
  * */
 app.use('/api', apiRouter)
-app.use('/stego-images', express.static(STEGO_IMAGE_DIR_PATH))
+app.use('/images', express.static(PUBLIC_IMAGE_DIR_PATH))
 
 /** Starting HTTP server. */
 httpServer.listen(APP_PORT, async () => {

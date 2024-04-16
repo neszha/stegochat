@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import appController from './controllers/app.controller'
 import channelControler from './controllers/channel.controler'
-import { saveCoverImage } from './multer.storage'
+import { uploadImage } from './multer.storage'
 
 /** Endpoint level: /api/* */
 const api = Router()
@@ -14,6 +14,7 @@ api.get('/', appController.getApiStatus)
 /**
  * Root Channel API.
  */
-api.post('/channel', saveCoverImage.single('coverImage'), channelControler.createStegoChannel)
+api.post('/channel', uploadImage.single('coverImage'), channelControler.createStegoChannel)
+api.post('/channel/info', uploadImage.single('stegoImage'), channelControler.getStegoChannelInfo)
 
 export default api

@@ -6,11 +6,11 @@ import { SHA256, enc } from 'crypto-js'
 import rsa from '../../modules/RSA/rsa'
 import redis from '../databases/redis.db'
 import rpeImage from '../../modules/RPE/rpe-image'
-import { type ChannelStegoPayload, type ChannelAuthPayload } from '../types/chennel'
 import { APP_BASE_URL } from '../../constants/environment'
+import { type StegoDecodeData } from '../../modules/RPE/rpe-type'
+import { type ChannelStegoPayload, type ChannelAuthPayload } from '../types/chennel'
 
 export default {
-
     /**
      * Create Stego Channel
      */
@@ -23,56 +23,59 @@ export default {
 
             // Validate request data.
             if (file === undefined || name === undefined) {
-                res.status(400).json({
-                    error: 'Invalid request body.'
-                })
+                res.status(400).json({ error: 'Invalid request body.' })
                 return
             }
 
             // Generate RSA key, seed, chanelId and channel screeat key.
             const rsaKey = rsa.generateKeys()
-            const seed: number = Number(randomString.generate({ charset: 'numeric', length: 16 }))
-            const channelId: string = randomString.generate(64)
+            const seed: string = randomString.generate({ charset: 'numeric', length: 16 })
+            const channelId: string = randomString.generate(32)
             const channelSecretKey: string = randomString.generate(1024)
+
+            // Generate embedding message.
+            const channelStegoPayload: ChannelStegoPayload = {
+                channelId,
+                channelName: name,
+                channelExpiredAt: new Date().getTime() + (expired * 1_000),
+                rsaPublicKeyBase64: enc.Base64url.stringify(enc.Utf8.parse(rsaKey.public))
+            }
+            const channelStegoPayloadBase64: string = enc.Base64url.stringify(
+                enc.Utf8.parse(JSON.stringify(channelStegoPayload))
+            ).toString()
+            const channelStegoPayloadSigniture: string = SHA256(channelStegoPayloadBase64 + channelSecretKey).toString()
+            const embeddingMessage = channelStegoPayloadBase64 + '.' + channelStegoPayloadSigniture
+
+            // Validate cover image capasity.
+            const coverCapacity = await rpeImage.getCapacity(file.path)
+            if (coverCapacity < 10_000) {
+                res.json({ error: 'Image file size is too small.' })
+                return
+            }
+
+            // Hide message to image.
+            const stegoImagePath = file.path.replace('upload-images', 'public-images')
+            const stego = await rpeImage.encoding(file.path, embeddingMessage, Number(seed))
+            fs.moveSync(stego.stegoPath, stegoImagePath, { overwrite: true })
+
+            // Save RPE seed to redis with ttl.
+            const stegoImageBuffer = fs.readFileSync(stegoImagePath)
+            const hashOfStegoImage: string = SHA256(Buffer.from(stegoImageBuffer).toString('base64')).toString()
+            const redisRpeSeedKey = 'rpe-seed:' + hashOfStegoImage
+            await redis.set(redisRpeSeedKey, seed, { EX: expired })
 
             // Save channel auth payload to redis with ttl.
             const channelAuthPayload: ChannelAuthPayload = {
                 channelId,
                 channelName: name,
                 rsaPrivateKey: rsaKey.private,
-                channelSecretKey,
-                seed
+                channelSecretKey
             }
             const redisChannelKey = 'channel:' + channelId
             await redis.set(redisChannelKey, JSON.stringify(channelAuthPayload), { EX: expired })
 
-            // Generate embedding message.
-            const channelStegoPayload: ChannelStegoPayload = {
-                channelId,
-                channelName: name,
-                rsaPublicKey: rsaKey.public,
-                channelExpiredAt: new Date().getTime() + (expired * 60 * 1_000)
-            }
-            const channelStegoPayloadBase64: string = enc.Base64url.stringify(enc.Utf8.parse(JSON.stringify(channelStegoPayload))).toString()
-            const channelStegoPayloadSigniture: string = SHA256(channelStegoPayloadBase64 + channelStegoPayloadBase64).toString()
-            const embeddingMessage = channelStegoPayloadBase64 + '.' + channelStegoPayloadSigniture
-
-            // Validate cover image capasity.
-            const coverCapacity = await rpeImage.getCapacity(file.path)
-            if (coverCapacity < 10_000) {
-                res.json({
-                    error: 'Ukuran file image terlalu kecil.'
-                })
-                return
-            }
-
-            // Hide message to image.
-            const stegoImagePath = file.path.replace('cover-images', 'stego-images')
-            const stego = await rpeImage.encoding(file.path, embeddingMessage, seed)
-            fs.moveSync(stego.stegoPath, stegoImagePath, { overwrite: true })
-
             // Create stego download link.
-            const stegoImageUrl = `${APP_BASE_URL}/stego-images/${path.basename(stegoImagePath)}`
+            const stegoImageUrl = `${APP_BASE_URL}/images/${path.basename(stegoImagePath)}`
 
             // Done.
             res.json({
@@ -83,9 +86,64 @@ export default {
             })
         } catch (error) {
             console.error(error)
-            res.status(500).json({
-                error: 'Terjadi masalah!'
+            res.status(500).json({ error: 'Getting error!' })
+        }
+    },
+
+    /**
+     * Get Stego Chennel Info.
+     */
+    async getStegoChannelInfo (req: Request, res: Response): Promise<void> {
+        try {
+            // Get the request data.
+            const file: Express.Multer.File | undefined = req.file
+
+            // Validate request data.
+            if (file === undefined) {
+                res.status(400).json({ error: 'Invalid request body.' })
+                return
+            }
+
+            // Get rpe seed from redis.
+            const stegoImageBuffer = fs.readFileSync(file.path)
+            const hashOfStegoImage: string = SHA256(Buffer.from(stegoImageBuffer).toString('base64')).toString()
+            const redisRpeSeedKey = 'rpe-seed:' + hashOfStegoImage
+            const seed: string | null = await redis.get(redisRpeSeedKey)
+            if (seed === null) {
+                res.status(400).json({ error: 'No data inner image.' })
+                return
+            }
+
+            // Get message from image.
+            const stegoDecode: StegoDecodeData = await rpeImage.decoding(file.path, Number(seed))
+
+            // Validate signiture.
+            const [base64Payload, signiture] = stegoDecode.message.split('.')
+            const channelStegoPayload: ChannelStegoPayload = JSON.parse(
+                enc.Base64url.parse(base64Payload).toString(enc.Utf8)
+            )
+            const chennelAuthPayloadData: string | null = await redis.get(`channel:${channelStegoPayload.channelId}`)
+            if (chennelAuthPayloadData === null) {
+                res.status(400).json({ error: 'No data inner image.' })
+                return
+            }
+            const channelAuthPayload: ChannelAuthPayload = JSON.parse(chennelAuthPayloadData)
+            const serverSignature: string = SHA256(base64Payload + channelAuthPayload.channelSecretKey).toString()
+            if (signiture !== serverSignature) {
+                res.status(400).json({ error: 'Stego signature is not valid.' })
+                return
+            }
+
+            // Done.
+            res.json({
+                data: {
+                    ...channelStegoPayload,
+                    signiture
+                }
             })
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ error: 'Getting error!' })
         }
     }
 }

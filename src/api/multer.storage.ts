@@ -4,22 +4,22 @@ import multer from 'multer'
 import { SHA1 } from 'crypto-js'
 
 const STORAGE_PATH = path.join(process.cwd(), 'storage')
-export const COVER_IMAGE_DIR_PATH = path.join(STORAGE_PATH, 'cover-images')
-export const STEGO_IMAGE_DIR_PATH = path.join(STORAGE_PATH, 'stego-images')
+export const UPLOAD_IMAGE_DIR_PATH = path.join(STORAGE_PATH, 'upload-images')
+export const PUBLIC_IMAGE_DIR_PATH = path.join(STORAGE_PATH, 'public-images')
 
-if (!fs.existsSync(COVER_IMAGE_DIR_PATH)) fs.mkdirSync(COVER_IMAGE_DIR_PATH)
-if (!fs.existsSync(STEGO_IMAGE_DIR_PATH)) fs.mkdirSync(STEGO_IMAGE_DIR_PATH)
+if (!fs.existsSync(UPLOAD_IMAGE_DIR_PATH)) fs.mkdirSync(UPLOAD_IMAGE_DIR_PATH)
+if (!fs.existsSync(PUBLIC_IMAGE_DIR_PATH)) fs.mkdirSync(PUBLIC_IMAGE_DIR_PATH)
 
 /**
- * Upload cover image.
+ * Upload image.
  */
-const saveCoverImageStorage = multer.diskStorage({
+const uploadImageStorage = multer.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, COVER_IMAGE_DIR_PATH)
+        callback(null, UPLOAD_IMAGE_DIR_PATH)
     },
     filename: function (req, file, callback) {
         const fileNameHash = SHA1(JSON.stringify(file)).toString()
         callback(null, fileNameHash + path.extname(file.originalname))
     }
 })
-export const saveCoverImage = multer({ storage: saveCoverImageStorage })
+export const uploadImage = multer({ storage: uploadImageStorage })
