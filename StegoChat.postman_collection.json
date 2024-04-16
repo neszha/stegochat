@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "fbf43c32-a982-479a-b6a9-fccfbc650a07",
+		"name": "StegoChat",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29018248"
+	},
+	"item": [
+		{
+			"name": "Channel",
+			"item": [
+				{
+					"name": "Create Stego Channel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Channel #1",
+									"description": "Channel Name",
+									"type": "text"
+								},
+								{
+									"key": "coverImage",
+									"description": "Cover Image",
+									"type": "file",
+									"src": "/Users/neszha/Downloads/img-03.png"
+								},
+								{
+									"key": "expired",
+									"value": "6000",
+									"description": "Time to Leave in Seconds",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/channel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"channel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stego Channel Info",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "stegoImage",
+									"description": "Cover Image",
+									"type": "file",
+									"src": "/Users/neszha/Downloads/0c83d76c1bc71a2ddf0e9fb06b02b608e58b507d.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/channel/info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"channel",
+								"info"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Api Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

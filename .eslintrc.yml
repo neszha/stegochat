@@ -10,5 +10,7 @@ rules:
     - error
     - 4
   '@typescript-eslint/indent': 'off'
+  '@typescript-eslint/unbound-method': 'off'
   '@typescript-eslint/no-empty-interface': 'off'
+  '@typescript-eslint/no-misused-promises': 'off'
   '@typescript-eslint/interface-name-prefix': 'off'
