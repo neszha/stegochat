@@ -46,9 +46,12 @@ export default {
             const channelStegoPayloadSigniture: string = SHA256(channelStegoPayloadBase64 + channelSecretKey).toString()
             const embeddingMessage = channelStegoPayloadBase64 + '.' + channelStegoPayloadSigniture
 
+            // Calculate message bit size.
+            const messageSize: number = embeddingMessage.length * 8
+
             // Validate cover image capasity.
             const coverCapacity = await rpeImage.getCapacity(file.path)
-            if (coverCapacity < 10_000) {
+            if (coverCapacity < (messageSize * 2)) {
                 res.json({ error: 'Image file size is too small.' })
                 return
             }
