@@ -7,7 +7,7 @@ dotenv.config()
  */
 export const APP_PORT: number = Number(process.env.APP_PORT ?? 8080)
 export const APP_BASE_URL: string = process.env.APP_BASE_URL ?? ''
-export const ROOT_PATH = process.cwd()
+export const ROOT_PATH: string = process.cwd()
 
 /**
  * Databases
