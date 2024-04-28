@@ -1,121 +1,102 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from "vue";
+import footCopyright from "@/components/general/footCopyright.vue";
+import IconArrow from "@/components/icons/IconArrow.vue";
 
+//show modal
+const classObject = ref("d-none");
+const modalToggle = () => {
+  if (classObject.value != "d-none") {
+    classObject.value = "d-none";
+  } else {
+    classObject.value = "position-absolute min-vh-100 w-100 justify-content-center align-items-center d-flex flex-col";
+  }
+}
+</script>
 <template>
-  <main class="py-3">
-    <div class="pc-content">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="chat-wrapper">
-            <div class="chat-content">
-              <div class="card mb-0 min-vh-100">
-                <div class="card-header p-3">
-                  <div class="d-flex align-items-center">
-                    <ul class="list-inline me-auto mb-0">
-                      <li class="list-inline-item align-bottom">
-                        <a
-                          href="#"
-                          class="d-xxl-none avtar avtar-s btn btn-link-secondary"
-                          type="button"
-                          data-bs-toggle="offcanvas"
-                          data-bs-target="#offcanvasScrolling"
-                          aria-controls="offcanvasScrolling"
-                        >
-                          <i class="ti ti-menu-2 f-18"></i>
-                        </a>
-                        <a
-                          href="#"
-                          class="d-none d-xxl-inline-flex avtar avtar-s btn-link-secondary"
-                          type="button"
-                          data-bs-toggle="offcanvas"
-                          data-bs-target="#offcanvasScrolling"
-                          aria-controls="offcanvasScrolling"
-                        >
-                          <i class="ti ti-menu-2 f-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <div class="media align-items-center">
-                          <div class="chat-avtar">
-                            <img
-                              class="rounded-circle img-fluid wid-40"
-                              src="@/assets/images/user/avatar-6.jpg"
-                              alt="User image"
-                            />
-                            <i class="chat-badge bg-success"></i>
-                          </div>
-                          <div class="media-body mx-3 d-none d-sm-inline-block">
-                            <h6 class="mb-0">StegoAdmin</h6>
-                            <span class="text-sm text-muted">Pull Stack Developer</span>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                    <ul class="list-inline ms-auto mb-0">
-                      <!-- <li class="list-inline-item">
-                        <a href="#" class="avtar avtar-s btn-link-secondary">
-                          <i class="ti ti-phone-call f-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a href="#" class="avtar avtar-s btn-link-secondary">
-                          <i class="ti ti-video f-18"></i>
-                        </a>
-                      </li>
-                      <li class="list-inline-item">
-                        <a
-                          href="#"
-                          class="d-xxl-none avtar avtar-s btn-link-secondary"
-                          data-bs-toggle="offcanvas"
-                          data-bs-target="#offcanvas_User_info"
-                        >
-                          <i class="ti ti-info-circle f-18"></i>
-                        </a>
-                        <a
-                          href="#"
-                          class="d-none d-xxl-inline-flex avtar avtar-s btn-link-secondary"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#chat-user_info"
-                        >
-                          <i class="ti ti-info-circle f-18"></i>
-                        </a>
-                      </li> -->
-                      <li class="list-inline-item">
-                        <div class="dropdown">
-                          <a
-                            class="avtar avtar-s btn-link-secondary dropdown-toggle arrow-none"
-                            href="#"
-                            data-bs-toggle="dropdown"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                          >
-                            <i class="ti ti-dots f-18"></i>
-                          </a>
-                          <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="#">Name</a>
-                            <a class="dropdown-item" href="#">Date</a>
-                            <a class="dropdown-item" href="#">Ratting</a>
-                            <a class="dropdown-item" href="#">Unread</a>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="d-flex flex-column justify-content-center align-items-center card-body">
-                  <form class="form" method="POST" enctype="application/x-www-form-urlencoded">
-                    <div class="mb-3">
-                      <label for="channel_name" class="form-label">Channel Name</label>
-                      <input type="text" id="channel_name" class="form-control" />
+  <main class="py-3 min-vh-100 d-flex flex-column justify-content-center align-items-center">
+    <!--Navbar-->
+    <nav class="position-absolute top-0 pt-5 pb-3 w-100" style="z-index: 90;">
+      <RouterLink
+      class="mt-3 p-4 text-center"
+      to="/"
+    >
+      <IconArrow />
+    </RouterLink>
+    </nav>
 
-                      <button type="submit" class="btn btn-primary mt-3">Create</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!--Form-->
+    <div
+      class="d-flex flex-column justify-content-center align-items-center"
+    >
+      <form
+        class="form"
+        method="POST"
+        enctype="application/x-www-form-urlencoded"
+        action="/create"
+      >
+        <div class="mb-3">
+          <label for="channel_name" class="form-label">
+            Channel Name
+          </label>
+          <input
+            type="text"
+            id="channel_name"
+            class="form-control"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="channel_expired" class="form-label">
+            Waktu Expired
+          </label>
+          <input
+            type="date"
+            id="channel_expired"
+            class="form-control"
+            required
+          />
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label" for="inputGroupFile01">
+            Cover Image (Optional, Min : 3MB)
+          </label>
+          <input 
+            type="file"
+            class="form-control"
+            id="inputGroupFile01"
+          />
+        </div>
+          
+          <button @click="modalToggle" class="btn btn-primary w-50 mt-3 rounded-2">
+            Create
+          </button>
+      </form>
+      <button @click="modalToggle" class="btn btn-info w-50 mt-3 rounded-2">
+        Popup
+      </button>
+    </div>
+
+    <!-- Modal -->
+    <div :class="classObject" style="z-index: 999; background: rgba(0,0,0,0.3);">
+      <div class="card p-3 d-flex flex-col justify-content-center align-items-center">
+      <img class="w-75" src="@/assets/images/authentication/logo.png" alt="stegochat logo" />
+        <p>
+          Simpan gambar untuk akses channel
+        </p>
+        <div class="d-flex gap-1">
+          <button  class="btn btn-success rounded-2">
+            Unduh
+          </button>
+          <button @click="modalToggle" class="btn btn-light-danger rounded-2">
+            Close
+          </button>
         </div>
       </div>
     </div>
+
+    <footCopyright />
   </main>
 </template>
