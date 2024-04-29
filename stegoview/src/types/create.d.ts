@@ -1,9 +1,9 @@
-export interface CreateForm{
-    channel: string,
-    expired: integer,
-    image: string
+export interface CreateForm {
+    channel: string
+    expired: integer
+    coverImage: File | null
 }
 
-export interface CreateResponse{
-    
+export interface CreateResponse {
+
 }
