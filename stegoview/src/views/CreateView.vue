@@ -13,12 +13,12 @@ import footCopyright from '@/components/general/footCopyright.vue'
 
         <!--Form-->
         <div class="d-flex flex-column justify-content-center align-items-center">
-            <form @submit.prevent="createChannel()" class="form" method="POST" enctype="application/x-www-form-urlencoded" action="/create">
+            <form @submit.prevent="createChannel()" class="form">
                 <div class="mb-3">
                     <label for="channel_name" class="form-label">
                         Channel Name
                     </label>
-                    <input v-model="form.data.channel" type="text" id="channel_name" class="form-control" required />
+                    <input v-model="form.data.name" type="text" id="channel_name" class="form-control" required />
                 </div>
 
                 <div class="mb-3">
@@ -48,14 +48,16 @@ import footCopyright from '@/components/general/footCopyright.vue'
         <!-- Modal -->
         <div :class="`${(showPopUp) ? 'd-flex' : 'd-none'} position-absolute min-vh-100 w-100 justify-content-center align-items-center flex-col`" style="z-index: 999; background: rgba(0,0,0,0.3);">
             <div class="card p-3 d-flex flex-col justify-content-center align-items-center">
-                <img class="w-75" src="@/assets/images/authentication/logo.png" alt="stegochat logo" />
+                <img v-if="form.feedBack.response.stegoImage !== null" class="w-75" :src="form.feedBack.response.stegoImage" alt="stegochat logo" />
                 <p>
                     Simpan gambar untuk akses channel
                 </p>
                 <div class="d-flex gap-1">
-                    <button class="btn btn-success rounded-2">
-                        Unduh
-                    </button>
+                  <a
+                    class="btn btn-success rounded-2"
+                    :href="form.feedBack.response.stegoImage"
+                    v-text="`unduh`"
+                    @click.prevent="downloadImage(form.feedBack.response.stegoImage)" />
                     <button @click="modalPopUp(false)" class="btn btn-light-danger rounded-2">
                         Close
                     </button>
@@ -68,7 +70,9 @@ import footCopyright from '@/components/general/footCopyright.vue'
 </template>
 
 <script lang="ts">
-import { type CreateForm } from '@/types/create'
+import { type CreateForm, type CreateResponse } from '@/types/create'
+import axios, { AxiosError, AxiosResponse } from 'axios'
+import { API_BASE_URL } from '@/constants/environment'
 
 export default {
     methods: {
@@ -85,13 +89,58 @@ export default {
 
         createChannel () {
             this.form.loading = true
-            const { channel, expired, coverImage } = this.form.data
+            const { name, expired, coverImage } = this.form.data
             const formData = new FormData()
-            formData.append('name', channel as string)
+            formData.append('name', name as string)
             formData.append('expired', expired.toString() as string)
             formData.append('coverImage', coverImage as File)
-            console.log(formData)
-            console.log(this.form)
+            axios.post(`http://127.0.0.1:8000/api/channel`, formData).then(({data}:AxiosResponse<CreateResponse>) => {
+                    this.form.feedBack.response.stegoImage = data.data.stegoImage
+                    this.form.feedBack.success = 'Channel Created'
+                    this.resetForm()
+                    this.showPopUp = true
+                })
+                .catch((error:AxiosError) => {
+                    console.log(error)
+                    const data = error.response?.data as CreateResponse
+                    const errorMessage = data.data.message ?? '' as string | string[]
+                    if (Array.isArray(errorMessage)) {
+                        this.form.feedBack.error = errorMessage[0]
+                    } else {
+                        this.form.feedBack.error = errorMessage
+                    }
+                })
+        },
+
+        resetForm():void{
+          this.form.data = {
+              name: '',
+              expired: '',
+              coverImage: null
+            },
+          this.form.loading = false
+        },
+
+        resetFeedback():void{
+          this.form.feedBack = {
+            error: '',
+            success: '',
+            response: {
+              stegoImage: ''
+            }
+          }
+        },
+
+        downloadImage(url : string):void{
+          axios.get(url, { responseType: 'blob' })
+            .then(response => {
+              const blob = new Blob([response.data], { type: 'application/png' })
+              const link = document.createElement('a')
+              link.href = URL.createObjectURL(blob)
+              link.download = "stegoImage.png"
+              link.click()
+              URL.revokeObjectURL(link.href)
+            }).catch(console.error)
         }
     },
 
@@ -103,7 +152,7 @@ export default {
         return {
             form: {
                 data: {
-                    channel: '',
+                    name: '',
                     expired: '',
                     coverImage: null as File | null
                 } satisfies CreateForm,
