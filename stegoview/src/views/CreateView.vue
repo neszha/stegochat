@@ -3,15 +3,6 @@ import { ref } from "vue";
 import footCopyright from "@/components/general/footCopyright.vue";
 import IconArrow from "@/components/icons/IconArrow.vue";
 
-//show modal
-const classObject = ref("d-none");
-const modalToggle = () => {
-  if (classObject.value != "d-none") {
-    classObject.value = "d-none";
-  } else {
-    classObject.value = "position-absolute min-vh-100 w-100 justify-content-center align-items-center d-flex flex-col";
-  }
-}
 </script>
 <template>
   <main class="py-3 min-vh-100 d-flex flex-column justify-content-center align-items-center">
@@ -100,3 +91,38 @@ const modalToggle = () => {
     <footCopyright />
   </main>
 </template>
+
+<script lang="ts">
+import {type CreateForm} from '@/types/create'
+//show modal
+const classObject = ref("d-none");
+const modalToggle = () => {
+  if (classObject.value != "d-none") {
+    classObject.value = "d-none";
+  } else {
+    classObject.value = "position-absolute min-vh-100 w-100 justify-content-center align-items-center d-flex flex-col";
+  }
+}
+
+export default{
+  data(){
+    return{
+      form:{
+        data:{
+          channel:"",
+          expired:"",
+          image:""
+        } satisfies CreateForm,
+        loading: false,
+        feedBack:{
+          error:"",
+          success:"",
+          response:{
+            stegoImage:"",
+          }
+        }
+      }
+    }
+  }
+}
+</script>
