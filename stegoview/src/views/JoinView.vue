@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import footCopyright from '@/components/general/footCopyright.vue';
+import footCopyright from '@/components/general/FootCopyright.vue';
 </script>
 
 <template>

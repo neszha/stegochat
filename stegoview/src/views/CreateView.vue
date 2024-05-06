@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IconArrow from '@/components/icons/IconArrow.vue'
-import footCopyright from '@/components/general/footCopyright.vue'
+import footCopyright from '@/components/general/FootCopyright.vue'
 </script>
 <template>
     <main class="py-3 min-vh-100 d-flex flex-column justify-content-center align-items-center">
