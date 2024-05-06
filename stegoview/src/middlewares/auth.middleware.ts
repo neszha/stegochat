@@ -1,5 +1,6 @@
 import { type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router'
 
+export const STORAGE_SC_NAME_KEY = 'sc_name'
 export const STORAGE_SC_SESSION_KEY = 'sc_session'
 
 export const onlyGuestSession = (_to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext): void => {

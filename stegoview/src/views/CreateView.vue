@@ -13,36 +13,37 @@ import footCopyright from '@/components/general/FootCopyright.vue'
 
         <!--Form-->
         <div class="d-flex flex-column justify-content-center align-items-center">
+            <h4 class="text-center f-w-500 mb-5">Create Private Channel</h4>
             <form @submit.prevent="createChannel()" class="form">
                 <div class="mb-3">
                     <label for="channel_name" class="form-label">
                         Channel Name
                     </label>
-                    <input v-model="form.data.name" type="text" id="channel_name" class="form-control" required />
+                    <input v-model="form.data.name" type="text" id="channel_name" ref="channel_name" class="form-control" placeholder="Channel Name" required />
                 </div>
-
                 <div class="mb-3">
                     <label for="channel_expired" class="form-label">
-                        Waktu Expired
+                        Expired Time
                     </label>
-                    <input v-model="form.data.expired" step="1" type="number" id="channel_expired" class="form-control" required />
+                    <input v-model="form.data.expired" step="1" type="number" id="channel_expired" class="form-control" placeholder="Expired in Minutes" required />
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label" for="inputGroupFile01">
-                        Cover Image (Optional, Min : 3MB)
+                        Cover Image
                     </label>
                     <input @change="onFileInput" type="file" class="form-control" id="inputGroupFile01" />
                 </div>
-
-                <button :disabled="form.loading" class="btn btn-primary w-50 mt-3 rounded-2">
-                    <span v-if="form.loading">Creating....</span>
-                    <span v-else>Create</span>
-                </button>
+                <div class="d-grid mt-4">
+                    <button :disabled="form.loading" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                        <i class="ti ti-plus"></i>
+                        <span v-if="form.loading">Creating....</span>
+                        <span v-else>Create New Channel</span>
+                    </button>
+                </div>
             </form>
-            <button @click="modalPopUp(true)" class="btn btn-info w-50 mt-3 rounded-2">
+            <!-- <button @click="modalPopUp(true)" class="btn btn-info w-50 mt-3 rounded-2">
                 Popup
-            </button>
+            </button> -->
         </div>
 
         <!-- Modal -->
@@ -144,7 +145,7 @@ export default {
     },
 
     mounted () {
-        //
+        (this.$refs.channel_name as HTMLInputElement).focus()
     },
 
     data () {

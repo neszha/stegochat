@@ -10,15 +10,15 @@
                 <li class="list-inline-item">
                     <div class="media align-items-center">
                         <div class="media-body">
-                            <h6 class="mb-0">Private Channel</h6>
-                            <span class="text-sm text-muted">Fanesa Hadi Pramana</span>
+                            <h6 class="mb-0">{{ stegoChannelData?.channelName || '-' }}</h6>
+                            <span class="text-sm text-muted">{{ name || 'Unknown' }} </span>
                         </div>
                     </div>
                 </li>
             </ul>
             <ul class="list-inline ms-auto mb-0">
                 <li class="list-inline-item">
-                    <a href="#" class="avtar avtar-s btn-link-secondary">
+                    <a @click="confirmToOutChannel()" href="javascript:void(0)" class="avtar avtar-s btn-link-secondary">
                         <i class="ti ti-logout f-18" style="rotate: 180deg;"></i>
                     </a>
                 </li>
@@ -26,3 +26,37 @@
         </div>
     </div>
 </template>
+
+<script lang="ts">
+import { STORAGE_SC_NAME_KEY, STORAGE_SC_SESSION_KEY } from '@/middlewares/auth.middleware'
+import { type StegoChannelData } from '@/types/chennel'
+
+export default {
+
+    methods: {
+        loadSessionDataInStorage (): void {
+            const name = localStorage.getItem(STORAGE_SC_NAME_KEY) ?? ''
+            const stegoChannelData = localStorage.getItem(STORAGE_SC_SESSION_KEY)
+            this.name = name
+            if (stegoChannelData === null) return
+            this.stegoChannelData = JSON.parse(stegoChannelData) as StegoChannelData
+        },
+
+        confirmToOutChannel (): void {
+            localStorage.clear()
+            this.$router.push({ name: 'join' })
+        }
+    },
+
+    beforeMount () {
+        this.loadSessionDataInStorage()
+    },
+
+    data () {
+        return {
+            name: '',
+            stegoChannelData: null as StegoChannelData | null
+        }
+    }
+}
+</script>
