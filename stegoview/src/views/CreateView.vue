@@ -71,7 +71,7 @@ import footCopyright from '@/components/general/FootCopyright.vue'
 
 <script lang="ts">
 import { type CreateForm, type CreateResponse } from '@/types/create'
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import axios, { type AxiosError, type AxiosResponse } from 'axios'
 import { API_BASE_URL } from '@/constants/environment'
 
 export default {
@@ -94,13 +94,14 @@ export default {
             formData.append('name', name as string)
             formData.append('expired', expired.toString() as string)
             formData.append('coverImage', coverImage as File)
-            axios.post(`http://127.0.0.1:8000/api/channel`, formData).then(({data}:AxiosResponse<CreateResponse>) => {
-                    this.form.feedBack.response.stegoImage = data.data.stegoImage
-                    this.form.feedBack.success = 'Channel Created'
-                    this.resetForm()
-                    this.showPopUp = true
-                })
-                .catch((error:AxiosError) => {
+            const url = API_BASE_URL + '/api/channel'
+            axios.post(url, formData).then(({ data }: AxiosResponse<CreateResponse>) => {
+                this.form.feedBack.response.stegoImage = data.data.stegoImage
+                this.form.feedBack.success = 'Channel Created'
+                this.resetForm()
+                this.showPopUp = true
+            })
+                .catch((error: AxiosError) => {
                     console.log(error)
                     const data = error.response?.data as CreateResponse
                     const errorMessage = data.data.message ?? '' as string | string[]
@@ -112,35 +113,33 @@ export default {
                 })
         },
 
-        resetForm():void{
-          this.form.data = {
-              name: '',
-              expired: '',
-              coverImage: null
-            },
-          this.form.loading = false
+        resetForm (): void {
+            const formData = this.form.data
+            formData.name = ''
+            formData.expired = ''
+            formData.coverImage = null
         },
 
-        resetFeedback():void{
-          this.form.feedBack = {
-            error: '',
-            success: '',
-            response: {
-              stegoImage: ''
+        resetFeedback (): void {
+            this.form.feedBack = {
+                error: '',
+                success: '',
+                response: {
+                    stegoImage: ''
+                }
             }
-          }
         },
 
-        downloadImage(url : string):void{
-          axios.get(url, { responseType: 'blob' })
-            .then(response => {
-              const blob = new Blob([response.data], { type: 'application/png' })
-              const link = document.createElement('a')
-              link.href = URL.createObjectURL(blob)
-              link.download = "stegoImage.png"
-              link.click()
-              URL.revokeObjectURL(link.href)
-            }).catch(console.error)
+        downloadImage (url: string): void {
+            axios.get(url, { responseType: 'blob' })
+                .then(response => {
+                    const blob = new Blob([response.data], { type: 'application/png' })
+                    const link = document.createElement('a')
+                    link.href = URL.createObjectURL(blob)
+                    link.download = 'stegoImage.png'
+                    link.click()
+                    URL.revokeObjectURL(link.href)
+                }).catch(console.error)
         }
     },
 
