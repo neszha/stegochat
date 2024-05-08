@@ -2,6 +2,7 @@ import { type Socket, type Server } from 'socket.io'
 import redis from './api/databases/redis.db'
 import { type ChannelAuthPayload } from './api/types/chennel'
 import { type SocketAuthPayload } from './types/socket'
+import rsa from './modules/RSA/rsa'
 
 export const io: Server | null = null
 
@@ -34,10 +35,9 @@ export const socketConnectionHandler = (ioServer: Server): void => {
         }
         const channelData = JSON.parse(channelDataJsonString) as ChannelAuthPayload
 
-        // Decrypt session key inner auth payload.
-        // const nodeRSA = new NodeRSA(channelData.rsaPrivateKey)
-        // console.log({ channelData, authPayload })
-        // authPayload.sessionKey = nodeRSA.decrypt(authPayload.sessionKey, 'utf8')
+        // Decrypt session key inner auth payload using RSA.
+        authPayload.sessionKey = rsa.decrypt(authPayload.sessionKey, channelData.rsaPrivateKey)
+        console.log({ channelData, authPayload })
 
         // Create private channel.
         const roomChannelKey = `room:${authPayload.channelId}`

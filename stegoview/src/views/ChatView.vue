@@ -13,7 +13,7 @@ import ChatFooter from '@/components/chat/ChatFooter.vue'
 </template>
 
 <script lang="ts">
-import JSEncrypt from 'jsencrypt'
+import forge from 'node-forge'
 import { mapState, mapActions } from 'pinia'
 import socket from '../socket'
 import { useChannelStore } from '@/stores/channel.store'
@@ -58,11 +58,13 @@ export default {
 
             // Generate auth payload and encrypt with RSA.
             const publicKey = this.session.rsaPublicKey as string
-            console.log(publicKey)
-            const encryptor = new JSEncrypt()
+            const publicKeyObject = forge.pki.publicKeyFromPem(publicKey)
+            const encryptedData = publicKeyObject.encrypt(this.sessionKey as string, 'RSA-OAEP', {
+                md: forge.md.sha256.create()
+            })
             const authPayload: SocketAuthPayload = {
                 channelId: this.session.channelId,
-                sessionKey: encryptor.encrypt('123') as string
+                sessionKey: forge.util.encode64(encryptedData)
             }
 
             // Create connection.

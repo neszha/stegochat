@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
 import { enc } from 'crypto-js'
+import { defineStore } from 'pinia'
 import { type SessionData } from '@/types/chennel'
 import { STORAGE_SC_NAME_KEY, STORAGE_SC_SESSION_KEY } from '@/middlewares/auth.middleware'
 
@@ -50,6 +50,7 @@ export const useChannelStore = defineStore('channel', {
             for (let i = 0; i < length; i++) {
                 this.sessionKey += characters.charAt(Math.floor(Math.random() * charactersLength))
             }
+            localStorage.setItem('sc_session_key', this.sessionKey)
         },
 
         exitChannel (): void {
