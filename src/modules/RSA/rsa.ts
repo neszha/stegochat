@@ -7,8 +7,9 @@ export default {
      * Generate private and public key.
      */
     generateKeys (): RSAKey {
-        const keyLength = 2048
+        const keyLength = 512
         const nodeRSA = new NodeRSA({ b: keyLength })
+        nodeRSA.setOptions({ encryptionScheme: 'pkcs1' })
         return {
             keyLength,
             private: nodeRSA.exportKey('private'),

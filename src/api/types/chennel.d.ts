@@ -1,3 +1,4 @@
+// Data saved in redis db.
 export interface ChannelAuthPayload {
     channelId: string
     channelName: string
@@ -5,6 +6,7 @@ export interface ChannelAuthPayload {
     channelSecretKey: string
 }
 
+// Data for inject into cover image.
 export interface ChannelStegoPayload {
     channelId: string
     channelName: string

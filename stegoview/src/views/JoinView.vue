@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios, { type AxiosResponse, isAxiosError } from 'axios'
 import { API_BASE_URL } from '@/constants/environment'
-import { type StegoChannelData } from '@/types/chennel'
+import { type SessionData } from '@/types/chennel'
 import IconArrow from '@/components/icons/IconArrow.vue'
 import { STORAGE_SC_NAME_KEY, STORAGE_SC_SESSION_KEY } from '@/middlewares/auth.middleware'
 </script>
@@ -56,7 +56,7 @@ export default {
             this.form.loading = true
             try {
                 const response: AxiosResponse = await axios.post(url, formData)
-                const stegoChannelData = response.data.data as StegoChannelData
+                const stegoChannelData = response.data.data as SessionData
                 localStorage.setItem(STORAGE_SC_NAME_KEY, this.form.data.name as string)
                 localStorage.setItem(STORAGE_SC_SESSION_KEY, JSON.stringify(stegoChannelData))
                 this.$router.push({ name: 'chat' })

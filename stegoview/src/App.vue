@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
     <RouterView />
+
     <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1"
         id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
         <div class="offcanvas-header">
@@ -24,12 +25,10 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <script lang="ts">
-import socket from './socket'
 
 export default {
-
     mounted () {
-        socket.connect()
+        //
     }
 }
 </script>
