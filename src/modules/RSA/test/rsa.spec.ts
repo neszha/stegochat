@@ -1,6 +1,6 @@
 import rsa from '../rsa'
 
-describe('Test Node RSA', () => {
+describe('Test RSA Module', () => {
     it('Success generate RSA public and private key', () => {
         const rsaKey = rsa.generateKeys()
         expect(rsaKey.keyLength).toEqual(2048)
