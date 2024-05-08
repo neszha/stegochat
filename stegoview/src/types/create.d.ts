@@ -6,7 +6,7 @@ export interface CreateForm {
 
 export interface CreateResponse {
     data: {
-        stegoImage: string,
+        stegoImage: string
         message: string
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IconArrow from '@/components/icons/IconArrow.vue'
-import footCopyright from '@/components/general/footCopyright.vue'
+import footCopyright from '@/components/general/FootCopyright.vue'
 </script>
 <template>
     <main class="py-3 min-vh-100 d-flex flex-column justify-content-center align-items-center">
@@ -13,36 +13,37 @@ import footCopyright from '@/components/general/footCopyright.vue'
 
         <!--Form-->
         <div class="d-flex flex-column justify-content-center align-items-center">
+            <h4 class="text-center f-w-500 mb-5">Create Private Channel</h4>
             <form @submit.prevent="createChannel()" class="form">
                 <div class="mb-3">
                     <label for="channel_name" class="form-label">
                         Channel Name
                     </label>
-                    <input v-model="form.data.name" type="text" id="channel_name" class="form-control" required />
+                    <input v-model="form.data.name" type="text" id="channel_name" ref="channel_name" class="form-control" placeholder="Channel Name" required />
                 </div>
-
                 <div class="mb-3">
                     <label for="channel_expired" class="form-label">
-                        Waktu Expired
+                        Expired Time
                     </label>
-                    <input v-model="form.data.expired" step="1" type="number" id="channel_expired" class="form-control" required />
+                    <input v-model="form.data.expired" step="1" type="number" id="channel_expired" class="form-control" placeholder="Expired in Minutes" required />
                 </div>
-
                 <div class="mb-3">
                     <label class="form-label" for="inputGroupFile01">
-                        Cover Image (Optional, Min : 3MB)
+                        Cover Image
                     </label>
                     <input @change="onFileInput" type="file" class="form-control" id="inputGroupFile01" />
                 </div>
-
-                <button :disabled="form.loading" class="btn btn-primary w-50 mt-3 rounded-2">
-                    <span v-if="form.loading">Creating....</span>
-                    <span v-else>Create</span>
-                </button>
+                <div class="d-grid mt-4">
+                    <button :disabled="form.loading" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                        <i class="ti ti-plus"></i>
+                        <span v-if="form.loading">Creating....</span>
+                        <span v-else>Create New Channel</span>
+                    </button>
+                </div>
             </form>
-            <button @click="modalPopUp(true)" class="btn btn-info w-50 mt-3 rounded-2">
+            <!-- <button @click="modalPopUp(true)" class="btn btn-info w-50 mt-3 rounded-2">
                 Popup
-            </button>
+            </button> -->
         </div>
 
         <!-- Modal -->
@@ -71,7 +72,7 @@ import footCopyright from '@/components/general/footCopyright.vue'
 
 <script lang="ts">
 import { type CreateForm, type CreateResponse } from '@/types/create'
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import axios, { type AxiosError, type AxiosResponse } from 'axios'
 import { API_BASE_URL } from '@/constants/environment'
 
 export default {
@@ -94,13 +95,14 @@ export default {
             formData.append('name', name as string)
             formData.append('expired', expired.toString() as string)
             formData.append('coverImage', coverImage as File)
-            axios.post(`http://127.0.0.1:8000/api/channel`, formData).then(({data}:AxiosResponse<CreateResponse>) => {
-                    this.form.feedBack.response.stegoImage = data.data.stegoImage
-                    this.form.feedBack.success = 'Channel Created'
-                    this.resetForm()
-                    this.showPopUp = true
-                })
-                .catch((error:AxiosError) => {
+            const url = API_BASE_URL + '/api/channel'
+            axios.post(url, formData).then(({ data }: AxiosResponse<CreateResponse>) => {
+                this.form.feedBack.response.stegoImage = data.data.stegoImage
+                this.form.feedBack.success = 'Channel Created'
+                this.resetForm()
+                this.showPopUp = true
+            })
+                .catch((error: AxiosError) => {
                     console.log(error)
                     const data = error.response?.data as CreateResponse
                     const errorMessage = data.data.message ?? '' as string | string[]
@@ -112,40 +114,38 @@ export default {
                 })
         },
 
-        resetForm():void{
-          this.form.data = {
-              name: '',
-              expired: '',
-              coverImage: null
-            },
-          this.form.loading = false
+        resetForm (): void {
+            const formData = this.form.data
+            formData.name = ''
+            formData.expired = ''
+            formData.coverImage = null
         },
 
-        resetFeedback():void{
-          this.form.feedBack = {
-            error: '',
-            success: '',
-            response: {
-              stegoImage: ''
+        resetFeedback (): void {
+            this.form.feedBack = {
+                error: '',
+                success: '',
+                response: {
+                    stegoImage: ''
+                }
             }
-          }
         },
 
-        downloadImage(url : string):void{
-          axios.get(url, { responseType: 'blob' })
-            .then(response => {
-              const blob = new Blob([response.data], { type: 'application/png' })
-              const link = document.createElement('a')
-              link.href = URL.createObjectURL(blob)
-              link.download = "stegoImage.png"
-              link.click()
-              URL.revokeObjectURL(link.href)
-            }).catch(console.error)
+        downloadImage (url: string): void {
+            axios.get(url, { responseType: 'blob' })
+                .then(response => {
+                    const blob = new Blob([response.data], { type: 'application/png' })
+                    const link = document.createElement('a')
+                    link.href = URL.createObjectURL(blob)
+                    link.download = 'stegoImage.png'
+                    link.click()
+                    URL.revokeObjectURL(link.href)
+                }).catch(console.error)
         }
     },
 
     mounted () {
-        //
+        (this.$refs.channel_name as HTMLInputElement).focus()
     },
 
     data () {

@@ -26267,7 +26267,7 @@ select[data-multiselectsplitter-secondselect-selector].dataTable-input {
 }
 
 .chat-message.scroll-block {
-  height: calc(100vh - 390px);
+  height: calc(100vh - 72px);
 }
 .chat-message .msg-content {
   padding: 12px 16px;
