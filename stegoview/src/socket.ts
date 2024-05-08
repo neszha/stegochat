@@ -5,7 +5,7 @@ import { API_BASE_URL } from './constants/environment'
 const socket = io(API_BASE_URL, {
     path: '/ws',
     auth: {
-        token: ''
+        channelId: null
     },
     transports: ['websocket']
 })

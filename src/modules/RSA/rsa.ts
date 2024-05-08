@@ -1,4 +1,4 @@
-import NodeRSA from 'node-rsa'
+import crypto from 'crypto'
 import { type RSAKey } from './rsa-type'
 
 export default {
@@ -8,11 +8,13 @@ export default {
      */
     generateKeys (): RSAKey {
         const keyLength = 2048
-        const nodeRSA = new NodeRSA({ b: keyLength })
+        const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: keyLength
+        })
         return {
             keyLength,
-            private: nodeRSA.exportKey('private'),
-            public: nodeRSA.exportKey('public')
+            public: publicKey.export({ type: 'spki', format: 'pem' }).toString(),
+            private: privateKey.export({ type: 'pkcs8', format: 'pem' }).toString()
         }
     },
 
@@ -20,15 +22,25 @@ export default {
      * Encrypt plaintext with public key.
      */
     encrypt (plaintext: string, publicKey: string): string {
-        const nodeRSA = new NodeRSA(publicKey)
-        return nodeRSA.encrypt(plaintext, 'base64')
+        const publicKeyObject = crypto.createPublicKey(publicKey)
+        const encryptedData = crypto.publicEncrypt({
+            key: publicKeyObject,
+            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+            oaepHash: 'sha256'
+        }, Buffer.from(plaintext))
+        return encryptedData.toString('base64')
     },
 
     /**
      * Decrypt chipertext with private key.
      */
     decrypt (chipertext: string, privateKey: string): string {
-        const nodeRSA = new NodeRSA(privateKey)
-        return nodeRSA.decrypt(chipertext, 'utf8')
+        const privateKeyObject = crypto.createPrivateKey(privateKey)
+        const decryptedData = crypto.privateDecrypt({
+            key: privateKeyObject,
+            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+            oaepHash: 'sha256'
+        }, Buffer.from(chipertext, 'base64'))
+        return decryptedData.toString()
     }
 }

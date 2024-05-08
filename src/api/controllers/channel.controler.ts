@@ -62,7 +62,7 @@ export default {
             fs.moveSync(stego.stegoPath, stegoImagePath, { overwrite: true })
 
             // Save RPE seed to redis with ttl.
-            const stegoImageBuffer = fs.readFileSync(stegoImagePath)
+            const stegoImageBuffer = fs.readFileSync(stegoImagePath, 'utf8')
             const hashOfStegoImage: string = SHA256(Buffer.from(stegoImageBuffer).toString('base64')).toString()
             const redisRpeSeedKey = 'rpe-seed:' + hashOfStegoImage
             await redis.set(redisRpeSeedKey, seed, { EX: expired })
@@ -108,7 +108,7 @@ export default {
             }
 
             // Get rpe seed from redis.
-            const stegoImageBuffer = fs.readFileSync(file.path)
+            const stegoImageBuffer = fs.readFileSync(file.path, 'utf8')
             const hashOfStegoImage: string = SHA256(Buffer.from(stegoImageBuffer).toString('base64')).toString()
             const redisRpeSeedKey = 'rpe-seed:' + hashOfStegoImage
             const seed: string | null = await redis.get(redisRpeSeedKey)

@@ -1,6 +1,14 @@
 import { type Socket, type Server } from 'socket.io'
+import redis from './api/databases/redis.db'
+import { type ChannelAuthPayload } from './api/types/chennel'
+import { type SocketAuthPayload } from './types/socket'
+import rsa from './modules/RSA/rsa'
 
 export const io: Server | null = null
+
+const sendExitEvent = (socket: Socket): void => {
+    socket.emit('event', 'exit')
+}
 
 export const socketConnectionHandler = (ioServer: Server): void => {
     // Register io to io state.
@@ -14,5 +22,25 @@ export const socketConnectionHandler = (ioServer: Server): void => {
         socket.on('disconnect', () => {
             console.log('clinet disconnected:', socket.id)
         })
+
+        // Handdle handshake payload.
+
+        // Validate auth connections.
+        const authPayload = socket.handshake.auth as SocketAuthPayload
+        const channelDataJsonString = await redis.get(`channel:${authPayload.channelId}`)
+        if (channelDataJsonString === null || authPayload.sessionKey === undefined) {
+            // Send exit event.
+            sendExitEvent(socket)
+            return
+        }
+        const channelData = JSON.parse(channelDataJsonString) as ChannelAuthPayload
+
+        // Decrypt session key inner auth payload using RSA.
+        authPayload.sessionKey = rsa.decrypt(authPayload.sessionKey, channelData.rsaPrivateKey)
+        console.log({ channelData, authPayload })
+
+        // Create private channel.
+        const roomChannelKey = `room:${authPayload.channelId}`
+        await socket.join(roomChannelKey)
     })
 }
