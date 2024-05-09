@@ -100,7 +100,7 @@ export default {
             const messageBinarryData = messageBinarry[messageBinarryIndex]
 
             // Get image pixel index.
-            const randomNumber: number = Number(rand.random().toString().replace('.', ''))
+            const randomNumber: number = rand.random()
             const targetIndex: number = randomNumber % mapPixels.length
             if (mapPixels[targetIndex]) continue
 

@@ -21,9 +21,9 @@ export default class PRNG {
     }
 
     /**
-     * Generate random number between 0 and 1
+     * Generate next random number.
      */
     public random (): number {
-        return this.next() / Math.pow(2, 32)
+        return this.next()
     }
 }
