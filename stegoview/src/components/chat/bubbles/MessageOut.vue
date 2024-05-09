@@ -1,5 +1,5 @@
 <template>
-    <div class="message-out">
+    <div class="message-out mb-2">
         <div class="d-flex align-items-end flex-column">
             <p class="mb-1 text-muted">
                 <small>

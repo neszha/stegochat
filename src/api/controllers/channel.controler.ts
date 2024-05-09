@@ -19,7 +19,7 @@ export default {
             // Get the request data.
             const name: string = req.body.name
             const file: Express.Multer.File | undefined = req.file
-            const expired: number = Number(req.body.expired ?? 0)
+            const expired: number = Number(req.body.expired ?? 0) // In minutes.
 
             // Validate request data.
             if (file === undefined || name === undefined) {
@@ -65,7 +65,7 @@ export default {
             const stegoImageBuffer = fs.readFileSync(stegoImagePath, 'utf8')
             const hashOfStegoImage: string = SHA256(Buffer.from(stegoImageBuffer).toString('base64')).toString()
             const redisRpeSeedKey = 'rpe-seed:' + hashOfStegoImage
-            await redis.set(redisRpeSeedKey, seed, { EX: expired })
+            await redis.set(redisRpeSeedKey, seed, { EX: expired * 60 })
 
             // Save channel auth payload to redis with ttl.
             const channelAuthPayload: ChannelAuthPayload = {
@@ -75,7 +75,7 @@ export default {
                 channelSecretKey
             }
             const redisChannelKey = 'channel:' + channelId
-            await redis.set(redisChannelKey, JSON.stringify(channelAuthPayload), { EX: expired })
+            await redis.set(redisChannelKey, JSON.stringify(channelAuthPayload), { EX: expired * 60 })
 
             // Create stego download link.
             const stegoImageUrl = `${APP_BASE_URL}/images/${path.basename(stegoImagePath)}`

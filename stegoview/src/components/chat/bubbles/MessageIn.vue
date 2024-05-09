@@ -1,5 +1,5 @@
 <template>
-    <div class="message-in">
+    <div class="message-in mb-2">
         <div class="d-flex">
             <div class="flex-grow-1">
                 <div class="d-flex align-items-start flex-column">

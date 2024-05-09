@@ -10,7 +10,7 @@
                 <li class="list-inline-item">
                     <div class="media align-items-center">
                         <div class="media-body">
-                            <h6 class="mb-0">{{ stegoChannelData?.channelName || '-' }}</h6>
+                            <h6 class="mb-0">{{ session.channelName || '-' }}</h6>
                             <span class="text-sm text-muted">{{ name || 'Unknown' }} </span>
                         </div>
                     </div>
@@ -28,34 +28,25 @@
 </template>
 
 <script lang="ts">
-import { STORAGE_SC_NAME_KEY, STORAGE_SC_SESSION_KEY } from '@/middlewares/auth.middleware'
-import { type StegoChannelData } from '@/types/chennel'
+import { useChannelStore } from '@/stores/channel.store'
+import { mapState } from 'pinia'
 
 export default {
 
-    methods: {
-        loadSessionDataInStorage (): void {
-            const name = localStorage.getItem(STORAGE_SC_NAME_KEY) ?? ''
-            const stegoChannelData = localStorage.getItem(STORAGE_SC_SESSION_KEY)
-            this.name = name
-            if (stegoChannelData === null) return
-            this.stegoChannelData = JSON.parse(stegoChannelData) as StegoChannelData
-        },
+    computed: {
+        ...mapState(useChannelStore, ['name', 'session'])
+    },
 
+    methods: {
         confirmToOutChannel (): void {
             localStorage.clear()
             this.$router.push({ name: 'join' })
         }
     },
 
-    beforeMount () {
-        this.loadSessionDataInStorage()
-    },
-
     data () {
         return {
-            name: '',
-            stegoChannelData: null as StegoChannelData | null
+            //
         }
     }
 }
