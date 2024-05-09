@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { useChannelStore } from '@/stores/channel.store'
-import { mapState } from 'pinia'
+import { mapActions, mapState } from 'pinia'
 
 export default {
 
@@ -41,9 +41,10 @@ export default {
     },
 
     methods: {
+        ...mapActions(useChannelStore, ['exitChannel']),
+
         confirmToOutChannel (): void {
-            localStorage.clear()
-            this.$router.push({ name: 'join' })
+            this.exitChannel()
         }
     },
 
