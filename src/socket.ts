@@ -47,6 +47,34 @@ const broadcastMessageToAnotherClient = (chatMessagePayload: ChatMessagePayload,
     }
 }
 
+const sendSendTotalUser = (channelId: string): void => {
+    if (io === null) return
+
+    // Get another client connection data in same channel.
+    const clientConnectionKeys = Object.keys(clinetConnections)
+        .filter(key => key.includes(channelId))
+    const channelClientConnections: SocketAuthPayload[] = []
+    for (const key of clientConnectionKeys) {
+        const data: SocketAuthPayload = clinetConnections[key]
+        if (data !== undefined) {
+            channelClientConnections.push(data)
+        }
+    }
+
+    // Send message each client connection.
+    for (const clientConnectionData of channelClientConnections) {
+        if (clientConnectionData.socketId === undefined) continue
+        if (clientConnectionData.sessionKey === undefined) continue
+
+        // Get socket objek of client id.
+        const socket = io.sockets.sockets.get(clientConnectionData.socketId)
+        if (socket === undefined) continue
+
+        // Send message.
+        socket.emit('count:user', channelClientConnections.length)
+    }
+}
+
 const sendExitEvent = (socket: Socket): void => {
     socket.emit('event', 'exit')
 }
@@ -93,6 +121,9 @@ export const socketConnectionHandler = (ioServer: Server): void => {
             }
         })
 
+        // Send total client connedted.
+        sendSendTotalUser(channelData.channelId)
+
         // Clinet disconnection callback.
         socket.on('disconnect', () => {
             console.log('clinet disconnected:', { id: socket.id })
@@ -101,6 +132,7 @@ export const socketConnectionHandler = (ioServer: Server): void => {
             if (Object.prototype.hasOwnProperty.call(clinetConnections, socketConnectionKey)) {
                 // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                 delete clinetConnections[socketConnectionKey]
+                sendSendTotalUser(channelData.channelId)
             }
         })
     })

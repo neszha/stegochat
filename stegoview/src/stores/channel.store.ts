@@ -12,6 +12,7 @@ interface ChannelStore {
     sessionKey: string
     session: SessionData
     chats: Chat[]
+    totalUserConnection: number
 }
 
 export const SOTRAGE_SC_CHATS = 'sc_chats'
@@ -31,7 +32,8 @@ export const useChannelStore = defineStore('channel', {
             rsaPublicKeyBase64: '',
             signiture: ''
         },
-        chats: []
+        chats: [],
+        totalUserConnection: 0
     }),
 
     /**
@@ -48,6 +50,11 @@ export const useChannelStore = defineStore('channel', {
             // Event message handler.
             socket.on('event', (key: string) => {
                 if (key === 'exit') this.exitChannel()
+            })
+
+            // Event to get users in channel.
+            socket.on('count:user', (total: number) => {
+                this.totalUserConnection = total
             })
 
             // Chat message handler.
