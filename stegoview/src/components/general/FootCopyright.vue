@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
     <footer class="w-100 position-absolute bottom-0">
         <div class="d-flex flex-wrap justify-content-between align-items-end border-top shadow">
