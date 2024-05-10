@@ -93,6 +93,7 @@ export default {
             formData.append('expired', expired.toString() as string)
             formData.append('coverImage', coverImage as File)
             const url = API_BASE_URL + '/api/channel'
+            console.log({url}, import.meta.env)
             axios.post(url, formData).then(({ data }: AxiosResponse<CreateResponse>) => {
                 this.form.feedBack.response.stegoImage = data.data.stegoImage
                 this.form.feedBack.success = 'Channel Created'

@@ -1,0 +1,7 @@
+services:
+  stegochat:
+    container_name: stegochat
+    image: stegochat:latest
+    restart: always
+    ports:
+      - 9000:80
