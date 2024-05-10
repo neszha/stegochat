@@ -1,0 +1,40 @@
+networks:
+  net_stegochat:
+    name: net_stegochat
+
+volumes:
+  vol_stegochat_redis_db:
+    name: vol_stegochat_redis_db
+
+services:
+  # REDIS
+  stegochat_redis_db:
+      container_name: stegochat_redis_db
+      image: redis:7.2.4
+      restart: always
+      networks:
+        - net_stegochat
+      volumes:
+        - vol_stegochat_redis_db:/data
+
+  # STEGOCHAT API
+  stegochat_api:
+    container_name: stegochat_api
+    image: stegochat-api:latest
+    restart: always
+    networks:
+      - net_stegochat
+    volumes:
+      - ./storage:/app/storage
+    depends_on:
+      - stegochat_redis_db
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    environment:
+      # Application
+      - APP_PORT=${APP_PORT}
+      - APP_BASE_URL=${APP_BASE_URL}
+      # Databases
+      - REDIS_DATABASE_URL=redis://stegochat_redis_db:6379/0
+      # Zona waktu: [Asia/Jakarta|Asia/Makasar|Asia/Jayapura]
+      - TZ=${TZ}
