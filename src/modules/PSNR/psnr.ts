@@ -1,66 +1,33 @@
-import { PNG } from 'pngjs'
-import fs from 'fs-extra'
+import sharp from 'sharp'
+import mse from './mse'
 
-const readImg = async (pathOrBuffer: any): Promise<Buffer> => {
-    let fileBuffer = pathOrBuffer
-    // load buffer of path
-    if (!(pathOrBuffer instanceof Buffer)) {
-        fileBuffer = await new Promise((resolve, reject) => {
-            fs.readFile(pathOrBuffer as fs.PathOrFileDescriptor, (err: any, data: any) => {
-                // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                if (err) reject(err)
-                resolve(data)
-            })
-        })
-    };
+export const getPixelDataFromImagePath = async (imagePath: string): Promise<number[]> => {
+    // Get image data from image path.
+    const { data: imageData, info: imageInfo } = await sharp(imagePath).raw().toBuffer({ resolveWithObject: true })
 
-    // load PNG from buffer
-    return await new Promise((resolve, reject) => {
-        const png = new PNG()
-        png.parse(fileBuffer as string | Buffer, (err: any, data: any) => {
-            // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-            if (err) reject(err)
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            resolve(data)
-        })
-    })
-}
-
-const countMSE = async (img1: string, img2: string): Promise<number> => {
-    const png = [await readImg(img1), await readImg(img2)]
-
-    // check image size
-    if (png[0].width !== png[1].width || png[0].height !== png[1].height) {
-        throw new Error('Image size mismatch')
+    // Convert hex to decimal each pixel.
+    const imageDecimalData: number[] = []
+    for (let i = 0; i < imageData.length; i += imageInfo.channels) {
+        for (let j = 0; j < imageInfo.channels; j++) {
+            const hexPixel = imageData[i + j].toString(16).padStart(2, '0')
+            const deximalValue = parseInt(hexPixel, 16)
+            imageDecimalData.push(deximalValue)
+        }
     }
 
-    // check length
-    if (png[0].data.length !== png[1].data.length) {
-        throw new Error('Image length mismatch')
-    }
-
-    // constant squared error
-    const square = (a: number): number => a * a
-    const channelIndex = [0, 1, 2]
-    const channelMax = 255 * 255
-    const area = png[0].width * png[1].height
-
-    // calculate MSE
-    let mse = 0
-    for (let i = 0; i < png[0].data.length; i += 4) {
-        const rgbas = png.map(png => png.data.slice(i, i + 4))
-        const rgbs = rgbas.map(rgba => channelIndex.map(i => rgba[i]))
-        channelIndex.forEach(i => {
-            mse += square(rgbs[0][i] - rgbs[1][i])
-        })
-    }
-
-    return mse / 3.0 / (channelMax * channelMax) / area
+    // Done.
+    return imageDecimalData
 }
 
-const countPSNR = async (img1: string, img2: string): Promise<number> => {
-    const mse = await countMSE(img1, img2)
-    return 10 * Math.log10(1 / mse)
-}
+/**
+ * Good pnr is > 30dB.
+ */
 
-export { countPSNR }
+// Thanks for your source code: https://github.com/bytespider/psnr/blob/master/src/psnr.js
+const max = 255
+export default (originalPixel: number[], noisyPixel: number[]): number => {
+    const mseResult: number = mse(originalPixel, noisyPixel, 1)
+    const psnr: number = 20 * Math.log10(max / mseResult)
+    if (psnr === Infinity) return 0
+    return psnr
+}
