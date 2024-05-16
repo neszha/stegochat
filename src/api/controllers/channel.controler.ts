@@ -8,6 +8,7 @@ import redis from '../databases/redis.db'
 import rpeImage from '../../modules/RPE/rpe-image'
 import { APP_BASE_URL } from '../../constants/environment'
 import { type StegoDecodeData } from '../../modules/RPE/rpe-type'
+import psnr, { getPixelDataFromImagePath } from '../../modules/PSNR/psnr'
 import { type ChannelStegoPayload, type ChannelAuthPayload } from '../types/chennel'
 
 export default {
@@ -80,11 +81,17 @@ export default {
             // Create stego download link.
             const stegoImageUrl = `${APP_BASE_URL}/images/${path.basename(stegoImagePath)}`
 
+            // Get psnr value.
+            const coverImagePixelData: number[] = await getPixelDataFromImagePath(file.path)
+            const stegoImagePixelData: number[] = await getPixelDataFromImagePath(stegoImagePath)
+            const psnrDb = psnr(coverImagePixelData, stegoImagePixelData)
+
             // Done.
             res.json({
                 data: {
                     stegoImage: stegoImageUrl,
-                    message: embeddingMessage
+                    message: embeddingMessage,
+                    psnrDb
                 }
             })
         } catch (error) {

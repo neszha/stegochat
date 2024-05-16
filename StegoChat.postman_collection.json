@@ -27,11 +27,11 @@
 									"key": "coverImage",
 									"description": "Cover Image",
 									"type": "file",
-									"src": "/Users/neszha/Downloads/img-03.png"
+									"src": "/Users/neszha/Pictures/img-02.png"
 								},
 								{
 									"key": "expired",
-									"value": "6000",
+									"value": "600",
 									"description": "Time to Leave in Seconds",
 									"type": "text"
 								}
@@ -62,7 +62,7 @@
 									"key": "stegoImage",
 									"description": "Cover Image",
 									"type": "file",
-									"src": "/Users/neszha/Downloads/0c83d76c1bc71a2ddf0e9fb06b02b608e58b507d.png"
+									"src": "/Users/neszha/Downloads/stegoImage (2).png"
 								}
 							]
 						},
