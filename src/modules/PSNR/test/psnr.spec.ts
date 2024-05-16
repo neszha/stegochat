@@ -26,6 +26,6 @@ describe('Test PSNR Module', () => {
 
         // Get PSNR.
         const psnrResult = psnr(coverImagePixelData, stegoImagePixelData)
-        expect(psnrResult > 30).toBe(true) // Good value of psnr is > 30dB.
+        expect(psnrResult).toBeGreaterThan(30) // Good value of psnr is > 30dB.
     })
 })
