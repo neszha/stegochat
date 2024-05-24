@@ -27,7 +27,7 @@ export const getPixelDataFromImagePath = async (imagePath: string): Promise<numb
 const max = 255
 export default (originalPixel: number[], noisyPixel: number[]): number => {
     const mseResult: number = mse(originalPixel, noisyPixel, 1)
-    const psnr: number = 20 * Math.log10(max / mseResult)
+    const psnr: number = 10 * Math.log10(max / mseResult)
     if (psnr === Infinity) return 0
     return psnr
 }
