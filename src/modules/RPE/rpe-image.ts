@@ -83,8 +83,9 @@ export default {
         }
 
         // Validate message capasity.
+        const messageSize = messageBinarry.length * 2
         const capacity = await this.getCapacity(imagePath)
-        if (messageBinarry.length > capacity) {
+        if (messageSize > capacity) {
             throw new Error('Message size is too large.')
         }
 
