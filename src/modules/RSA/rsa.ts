@@ -6,8 +6,7 @@ export default {
     /**
      * Generate private and public key.
      */
-    generateKeys (): RSAKey {
-        const keyLength = 2048
+    generateKeys (keyLength: number = 2048): RSAKey {
         const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
             modulusLength: keyLength
         })
