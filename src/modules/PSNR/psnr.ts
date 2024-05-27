@@ -24,7 +24,7 @@ export const getPixelDataFromImagePath = async (imagePath: string): Promise<numb
  */
 
 // Thanks for your source code: https://github.com/bytespider/psnr/blob/master/src/psnr.js
-const max = 255
+const max = Math.pow(255, 2)
 export default (originalPixel: number[], noisyPixel: number[]): number => {
     const mseResult: number = mse(originalPixel, noisyPixel, 1)
     const psnr: number = 10 * Math.log10(max / mseResult)
